@@ -9,3 +9,9 @@
 ### 15:32
 
 2. 上传至github。 Commit these files to Github.
+
+## 20261007
+
+### 02:20
+
+1. 写入Task类的基本函数。 Constructor, Copy constructor and Destructor in class Task.
