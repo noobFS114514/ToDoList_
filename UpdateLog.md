@@ -14,4 +14,14 @@
 
 ### 02:20
 
-1. 写入Task类的基本函数。 Constructor, Copy constructor and Destructor in class Task.
++ 写入Task类的基本函数。 Constructor, Copy constructor and Destructor in class Task.
+
+## 20261009
+
+### 15:32
+
+1. 因技术力不足暂时删去ddl功能(哦悲悲)。 Postpone the development of "Deadline" function :(.
+
+### 16:18
+
+2. 初步完成TaskManager类。Finish basic functions in class : TaskManager. 
