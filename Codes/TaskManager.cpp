@@ -1,10 +1,8 @@
-#pragma once
-
 #include "TaskManager.h"
 #include <iostream>
 #include <fstream>
 
-void TaskManager::addTask(std::string taskTitle = ""){
+void TaskManager::addTask(std::string taskTitle){
     task_.push_back({taskTitle,0});
     std::cout << "Add the task successfully! " << std::endl;
 }
@@ -52,9 +50,13 @@ void TaskManager::saveTaskList(const std::string & fileName) const {
 void TaskManager::loadTaskList(const std::string & fileName){
     task_.clear();
     std::ifstream fin(fileName);
-    if(!fin){return;}
+    if(!fin){
+        std::cout << "Open file failed: " << fileName << std::endl;
+        return;
+    }
 
     std::string line;
+    int maxId = 0;
     while(std::getline(fin,line)){
         if(line.empty()){continue;}
 
@@ -63,10 +65,17 @@ void TaskManager::loadTaskList(const std::string & fileName){
         size_t p1 = line.find('|');
         size_t p2 = line.find('|', p1 + 1);
 
-        Task t;
+        if(p1 == std::string::npos || p2 == std::string::npos){
+            continue;
+        }
+
+        //  Task t;
+        Task t("", 0);
         t.id_ = std::stoi(line.substr(0,p1));
         t.TaskName = line.substr(p1 + 1,p2 - p1 -1);
         t.isDone = (line.substr(p2 + 1) == "D" ? 1 : 0);
         task_.push_back(t);
+        if(t.id_ > maxId){ maxId = t.id_; }
     }
+    Task::TaskNumber = maxId;
 }

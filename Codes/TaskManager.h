@@ -8,7 +8,6 @@
 class TaskManager{
   private:
     std::vector<Task> task_;
-    int taskNumber;
   public:
     void addTask(std::string taskTitle = "");
     void listTask() const;

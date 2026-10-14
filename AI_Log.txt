@@ -1,0 +1,112 @@
+================================================================================
+AI_Log.txt —— 代码审查与修改记录（AI 修改日志）
+项目：ToDoList（控制台小项目）
+日期：2026-10-14
+说明：所有被修改的代码均已以注释形式保留原文，新代码紧随其后。
+================================================================================
+
+--------------------------------------------------------------------------------
+一、总体结论
+--------------------------------------------------------------------------------
+1. 原工程无法成功链接：Task.h 末尾在头文件中定义了静态成员
+   `int Task::TaskNumber = 0;`，而该头文件被 main.cpp / Task.cpp /
+   TaskManager.cpp 三个源文件同时包含，会导致链接阶段报
+   "multiple definition of Task::TaskNumber"。
+2. 存在编译错误：构造函数与 addTask 的默认参数在声明处和定义处被重复给出。
+3. 存在运行时 bug：operator= 返回局部对象引用（悬空引用）。
+4. 功能不完整：main.cpp 为空，程序无任何交互入口。
+5. 数据读写不健壮：loadTaskList 缺少格式校验，且会污染全局编号、打印多余信息。
+
+--------------------------------------------------------------------------------
+二、逐文件修改明细
+--------------------------------------------------------------------------------
+
+【文件 1】Codes/Task.h
+  - 修改点 A：构造函数默认参数
+      原：Task(std::string Name_ = std::to_string(TaskNumber),int Done_ = 0);
+      改：Task(std::string Name_ = "", int Done_ = 0);
+      原因：默认参数用静态成员 TaskNumber 作默认值，语义不稳定（其值在调用点
+            才求值，且与构造体内自增顺序耦合），改为空字符串更清晰。
+  - 修改点 B：复制构造函数
+      原：Task(Task & ot);
+      改：Task(const Task & ot);
+      原因：加 const 以便复制临时对象 / 常量对象，符合复制构造语义。
+  - 修改点 C：赋值运算符
+      原：Task &operator=(Task & ot);
+      改：Task &operator=(const Task & ot);
+      原因：同 B，参数加 const。
+  - 修改点 D：静态成员定义
+      原：int Task::TaskNumber = 0;（位于头文件末尾）
+      改：从本文件移除，移至 Task.cpp。
+      原因：解决多重定义链接错误。
+
+【文件 2】Codes/Task.cpp
+  - 修改点 A：静态成员定义
+      原：无（定义在 Task.h）
+      改：新增 int Task::TaskNumber = 0;（承接自 Task.h）
+  - 修改点 B：构造函数
+      原：Task::Task(std::string Name_ = std::to_string(TaskNumber),int Done_ = 0){
+      改：Task::Task(std::string Name_, int Done_){
+      原因：默认参数只能在声明处给出一次，定义处重复给出会编译报错。
+  - 修改点 C：复制构造函数
+      原：Task::Task(Task & ot){ 仅复制 TaskName、isDone，未复制 id_，参数无 const }
+      改：Task::Task(const Task & ot){ 补全 id_ = ot.id_; }
+      原因：修复 id_ 未初始化/未复制的问题，且复制不改变全局计数。
+  - 修改点 D：赋值运算符
+      原：创建局部对象 Task newT(...) 并 return newT;（返回局部变量引用，UB，
+          且未修改赋值目标本身）
+      改：逐成员赋值（TaskName / isDone / id_）后 return *this;
+      原因：修复悬空引用，保证赋值语义正确。
+  - 修改点 E：析构函数
+      原：TaskNumber -= 1;
+      改：删除该递减逻辑（注释保留原文）。
+      原因：vector 在 push_back / erase / clear 时会频繁创建与销毁临时对象，
+            递减会打乱全局编号；编号改为“只增分配”语义。
+
+【文件 3】Codes/TaskManager.cpp
+  - 修改点 A：addTask 定义处默认参数
+      原：void TaskManager::addTask(std::string taskTitle = ""){
+      改：void TaskManager::addTask(std::string taskTitle){
+      原因：默认参数只在头文件声明处给出一次，避免重定义报错。
+  - 修改点 B：loadTaskList 打开失败处理
+      原：if(!fin){return;}
+      改：if(!fin){ 提示 "Open file failed: <name>"; return; }
+      原因：静默失败不利于排查。
+  - 修改点 C：loadTaskList 行格式校验
+      原：直接 find('|') 后使用，无校验
+      改：若 p1 或 p2 为 npos 则 continue 跳过该行
+      原因：避免非法行导致 std::stoi 抛异常或 substr 越界。
+  - 修改点 D：loadTaskList 构造方式
+      原：Task t;（默认构造，会打印 "Task created." 并递增计数）
+      改：Task t("", 0); 再手动回填 id_/TaskName/isDone
+      原因：显式回填，减少默认构造带来的副作用（仍会打印一次，见“遗留说明”）。
+  - 修改点 E：loadTaskList 编号同步
+      原：无
+      改：加载后 Task::TaskNumber = maxId;（取加载到的最大 id）
+      原因：保证后续新增任务 id 不与已有 id 冲突。
+
+【文件 4】Codes/main.cpp
+  - 修改点 A：补充交互入口
+      原：空 main，仅 return 0;
+      改：新增 TaskManager 对象 + 循环菜单（1 增 / 2 列 / 3 标记完成 /
+          4 删除 / 5 保存 / 6 加载 / 0 退出）。
+      原因：原程序无任何可用功能，补齐最基本的使用入口。
+
+【文件 5】Codes/TaskManager.h
+  - 未修改。默认参数仅在声明处出现一次，无重复定义问题；Task 完整类型已由
+    #include "Task.h" 提供，vector<Task> 可用。
+
+--------------------------------------------------------------------------------
+三、遗留问题与建议（未修改，供后续参考）
+--------------------------------------------------------------------------------
+1. 构造函数与析构函数内的 std::cout 调试输出（"Task created." /
+   "Current Task Number: ..." / "Task deleted."）在批量加载或复制时会刷屏。
+   建议：后续为 Task 增加“静默构造”开关，或在加载/复制路径中抑制输出。
+2. 静态成员 TaskNumber 的“只增分配”语义在程序多次启动、跨文件保存/加载时，
+   依赖 loadTaskList 末尾的同步逻辑来维持 id 唯一；若未来引入并发或多实例，
+   建议改用 TaskManager 内部维护 id 分配器。
+3. saveTaskList 使用固定分隔符 '|'，任务名中若包含 '|' 会导致保存/加载错位。
+   建议：转义分隔符或改用 JSON/CSV 库。
+4. main 中 cin 与 getline 混用已通过 cin.ignore() 处理常见换行残留，但未处理
+   非法输入（如输入非数字）导致的 cin 失败状态；可进一步加输入校验。
+5. TaskManager 私有成员 int taskNumber 目前未被使用，可考虑删除或接入逻辑。
