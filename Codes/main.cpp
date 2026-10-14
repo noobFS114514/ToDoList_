@@ -17,6 +17,7 @@ int main(){
         std::cout << "4. Remove Task" << std::endl;
         std::cout << "5. Save to file" << std::endl;
         std::cout << "6. Load from file" << std::endl;
+        std::cout << "7. Set Deadline" << std::endl;
         std::cout << "0. Exit" << std::endl;
         std::cout << "Please choose: ";
         std::cin >> choice;
@@ -57,6 +58,17 @@ int main(){
             case 6:{
                 manager.loadTaskList("TaskList.txt");
                 std::cout << "Loaded from TaskList.txt." << std::endl;
+                break;
+            }
+            case 7:{
+                int id = 0;
+                std::string ddl;
+                std::cout << "Enter task id: ";
+                std::cin >> id;
+                std::cin.ignore();
+                std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
+                std::getline(std::cin, ddl);
+                manager.setDeadline(id, ddl);
                 break;
             }
             case 0:{

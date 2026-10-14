@@ -127,3 +127,52 @@ AI_Log.txt —— 代码审查与修改记录（AI 修改日志）
       void TaskManager::removeTask(const std::string title)：
           遍历 task_，匹配 TaskName == title 则 erase 该元素并返回；否则提示 NOT FOUND。
   - 说明：名称查找与 id 查找行为一致，均只处理第一个匹配项（重名时仅首个生效）。
+
+--------------------------------------------------------------------------------
+五、追加修改记录（2026-10-15）—— DeadLine 截止日期功能
+--------------------------------------------------------------------------------
+【目标】利用 <chrono> / <ctime> 为每个任务增加时间信息，并扩展 TaskManager。
+
+【文件】Codes/Task.h
+  - 新增 #include <ctime>。
+  - 新增两个私有时间字段：
+      std::time_t setTime_;   // 任务添加时间
+      std::time_t ddl_;       // 截止日期时间（0 表示未设置）
+
+【文件】Codes/Task.cpp
+  - 新增 #include <chrono>。
+  - 构造函数：setTime_ = system_clock::now() 转 time_t；ddl_ 初始化为 0（未设置）。
+  - 复制构造函数 / operator=：补全 setTime_ 与 ddl_ 的复制。
+
+【文件】Codes/TaskManager.h
+  - 新增 setDeadline 两个重载声明：
+      void setDeadline(int id, const std::string & ddl);
+      void setDeadline(const std::string & title, const std::string & ddl);
+
+【文件】Codes/TaskManager.cpp
+  - 新增 #include <sstream> / <iomanip> / <ctime> / <chrono>。
+  - 匿名命名空间内新增 3 个时间工具函数：
+      formatTime(time_t)  -> "YYYY-MM-DD HH:MM:SS"（<=0 返回 "未设置"）
+      parseTime(string)   -> 解析 "YYYY-MM-DD HH:MM[:SS]"，失败返回 0
+      formatRemain(ddl, now) -> 计算 remainTime = ddl - now，输出 "剩余/已逾期 X天X小时X分钟"
+  - listTask：展示每项时追加 "| ddl: <时间> | 剩余: <时长>"；ddl 为 0 时显示 "未设置"。
+  - 新增 setDeadline(int, string) 与 setDeadline(string, string)：按 id/名称查找，
+    解析并写入 ddl_；解析失败提示格式要求，找不到提示 NOT FOUND。
+  - saveTaskList：保存格式由 3 段扩展为 5 段：
+      id_|TaskName|isDone|setTime|ddl
+    setTime/ddl 以 time_t 秒数（整数）写入。
+  - loadTaskList：按 '|' 分割行，兼容 3 段旧格式（缺省 setTime/ddl 置 0），
+    新格式读入 5 段并回填 time_t。
+
+【文件】Codes/main.cpp
+  - 菜单新增 "7. Set Deadline"（按 id 设置，提示输入 "YYYY-MM-DD HH:MM"）。
+    说明：名称版 setDeadline 已在 TaskManager 中提供，但菜单暂用 id 版以保持简洁。
+
+【设计说明 / 注意事项】
+1. 存储类型选用 std::time_t（整数秒，便于 | 分隔文本持久化）；"当前时间"与转换
+   通过 std::chrono::system_clock::now() / to_time_t / from_time_t 完成。
+2. ddl_ == 0 作为"未设置截止时间"的哨兵值。
+3. setTime_ 已存储并参与保存/加载，但按要求未在 listTask 中展示；如需展示可补一行。
+4. 旧版 3 段格式的文件仍可加载（setTime/ddl 缺省为 0），向后兼容。
+5. std::localtime 非线程安全（本项目单线程，可接受）；跨平台若需线程安全可换
+   localtime_s（MSVC）或 localtime_r（POSIX）。

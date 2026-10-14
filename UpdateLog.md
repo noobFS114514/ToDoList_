@@ -50,3 +50,6 @@
 
 1. 实现TaskManager类的按名称查找。 Now you can search task by name.
 
+### 01：25
+
+2. 实现Task的ddl功能。 Finish deadline function of task.

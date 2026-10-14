@@ -1,5 +1,6 @@
 #include "Task.h"
 #include <iostream>
+#include <chrono>
 
 int Task::TaskNumber = 0;
 
@@ -7,16 +8,18 @@ Task::Task(std::string Name_, int Done_){
     TaskName = Name_;
     isDone = Done_;
     // deadlineTime = ddl_;
+    setTime_ = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ddl_ = 0; // 0 表示未设置截止时间
     TaskNumber += 1;
     id_ = TaskNumber;
 }
 
 Task::Task(const Task & ot){
-    // if()
     TaskName = ot.TaskName;
     isDone = ot.isDone;
     id_ = ot.id_;
-    // deadlineTime = ot.deadlineTime;
+    setTime_ = ot.setTime_;
+    ddl_ = ot.ddl_;
 }
 
 Task::~Task(){}
@@ -37,5 +40,7 @@ Task & Task::operator=(const Task & ot){
     TaskName = ot.TaskName;
     isDone = ot.isDone;
     id_ = ot.id_;
+    setTime_ = ot.setTime_;
+    ddl_ = ot.ddl_;
     return *this;
 }
