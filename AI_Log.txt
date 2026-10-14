@@ -110,3 +110,20 @@ AI_Log.txt —— 代码审查与修改记录（AI 修改日志）
 4. main 中 cin 与 getline 混用已通过 cin.ignore() 处理常见换行残留，但未处理
    非法输入（如输入非数字）导致的 cin 失败状态；可进一步加输入校验。
 5. TaskManager 私有成员 int taskNumber 目前未被使用，可考虑删除或接入逻辑。
+
+--------------------------------------------------------------------------------
+四、追加修改记录（2026-10-15）
+--------------------------------------------------------------------------------
+【文件】Codes/TaskManager.h
+  - 实现按名称查找的重载声明（原为注释）：
+      void markDone(const std::string title);
+      void removeTask(const std::string title);
+    原注释行保留，新增对应实现声明。
+
+【文件】Codes/TaskManager.cpp
+  - 新增实现（按名称查找）：
+      void TaskManager::markDone(const std::string title)：
+          遍历 task_，匹配 TaskName == title 则置 isDone = 1 并返回；否则提示 NOT FOUND。
+      void TaskManager::removeTask(const std::string title)：
+          遍历 task_，匹配 TaskName == title 则 erase 该元素并返回；否则提示 NOT FOUND。
+  - 说明：名称查找与 id 查找行为一致，均只处理第一个匹配项（重名时仅首个生效）。

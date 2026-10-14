@@ -43,3 +43,10 @@
 ### 23:58
 
 4. 补充main的主界面循环部分。 Finish main loop in main.cpp.
+
+## 20261015
+
+### 00:43
+
+1. 实现TaskManager类的按名称查找。 Now you can search task by name.
+

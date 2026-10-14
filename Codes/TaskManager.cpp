@@ -29,9 +29,31 @@ void TaskManager::markDone(int id){
     std::cout << "Task NOT FOUND. " << std::endl;
 }
 
+void TaskManager::markDone(const std::string title){
+    for(auto& t :task_){
+        if(t.TaskName == title){
+            t.isDone = 1;
+            std::cout << "Had marked 'Finished'. " << std::endl;
+            return;
+        }
+    }
+    std::cout << "Task NOT FOUND. " << std::endl;
+}
+
 void TaskManager::removeTask(int id){
     for(auto itr = task_.begin();itr != task_.end();itr++){
         if(itr->id_ == id){
+            task_.erase(itr);
+            std::cout << "Delete the task successfully! " << std::endl;
+            return;
+        }
+    }
+    std::cout << "Task NOT FOUND. " << std::endl;
+}
+
+void TaskManager::removeTask(const std::string title){
+    for(auto itr = task_.begin();itr != task_.end();itr++){
+        if(itr->TaskName == title){
             task_.erase(itr);
             std::cout << "Delete the task successfully! " << std::endl;
             return;
