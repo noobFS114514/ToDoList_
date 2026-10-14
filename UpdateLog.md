@@ -1,55 +1,49 @@
-# ToDoList Project - UpdateLog
+# ToDoList Project — Update Log
 
-## 20260928
+> 项目开发日志 · Project Development Log
 
-### 15:02
+---
 
-1. 搭建项目框架。 Create this Project and detailed structure.
+## 2026-09-28
 
-### 15:32
+- **15:02** — 搭建项目框架。*Set up the project framework and its structure.*
 
-2. 上传至github。 Commit these files to Github.
+- **15:32** — 上传至 GitHub。*Commit these files to GitHub.*
 
-## 20261007
+---
 
-### 02:20
+## 2026-10-07
 
-+ 写入Task类的基本函数。 Constructor, Copy constructor and Destructor in class Task.
+- **02:20** — 写入 `Task` 类的基本函数。*Write the basic functions of class `Task` (constructor, copy constructor, destructor).*
 
-## 20261009
+---
 
-### 15:32
+## 2026-10-09
 
-1. 因技术力不足暂时删去ddl功能(哦悲悲)。 Postpone the development of "Deadline" function :(.
+- **15:32** — 因技术力不足暂时删去 ddl 功能（哦悲悲）。*Temporarily removed the deadline feature due to limited technical skill. :(*
 
-### 16:18
+- **16:18** — 初步完成 `TaskManager` 类。*Initially completed the basic functions of class `TaskManager`.*
 
-2. 初步完成TaskManager类。Finish basic functions in class : TaskManager. 
+---
 
-## 20261014
+## 2026-10-14
 
-### 23:20
+- **23:20** — 解决链接多重定义问题（类的静态成员移至头文件外部）。*Fixed the multiple-definition link error (moved the static member definition out of the header).*
 
-1. 解决链接多重定义问题(类的静态成员移至头文件外部)。 Handle linking error: redefinition of default argument(Move static datas out of headers).
+- **23:33** — 对 `Task` 类的默认函数做出更正。*Corrected the default member functions of class `Task`.*
 
-### 23:33
+- **23:44** — 对 `TaskManager` 类的具体实现做出细节修改。*Refined the implementation details of class `TaskManager`.*
 
-2. 对Task类的默认函数做出更正。 Correct basic functions in class Task.
+- **23:58** — 补充 `main` 的主界面循环部分。*Added the main menu loop in `main.cpp`.*
 
-### 23:44
+---
 
-3. 对TaskManager类的具体实现做出细节修改。 Add some details in class TaskManager.
+## 2026-10-15
 
-### 23:58
+- **00:43** — 实现 `TaskManager` 类的按名称查找。*Implemented name-based search in class `TaskManager`.*
 
-4. 补充main的主界面循环部分。 Finish main loop in main.cpp.
+- **01:25** — 实现 `Task` 的 ddl 功能。*Implemented the deadline feature of class `Task`.*
 
-## 20261015
+---
 
-### 00:43
-
-1. 实现TaskManager类的按名称查找。 Now you can search task by name.
-
-### 01：25
-
-2. 实现Task的ddl功能。 Finish deadline function of task.
+*— End of Log —*
